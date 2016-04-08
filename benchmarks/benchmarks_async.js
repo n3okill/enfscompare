@@ -9,6 +9,7 @@
  * @since 0.0.1
  * @description display the different times taken to compare files of different sizes with the 2 methods available
  * (hash and byte-to-byte)
+ * Run this in your machine to see what is fastest, normally byte-to-byte in different files will be the fastest
  */
 
 "use strict";
@@ -21,6 +22,8 @@ const enfs = require("enfspatch");
 const comparator = require("../");
 
 const tmpPath = nodePath.join(nodeOs.tmpdir(), "enfscomparebenchmarks");
+
+
 const FILES = {
     SMALL: {
         FILE: nodePath.join(tmpPath, "small_file"),
@@ -39,7 +42,7 @@ const SIZE = 1024 * 1024; //Mb
 const MBSIZE = {
     SMALL: 1,       //1Mb
     MEDIUM: 100,    //100Mb
-    BIG: 1024       //1Gb
+    BIG: 1000       //1Gb
 };
 
 const STATS = {
@@ -62,9 +65,8 @@ const STATS = {
 
 function onError(err) {
     if (err) {
-        rimraf(tmpPath, (err2)=> {
-            throw err2 || err;
-        });
+        rimraf.sync(tmpPath);
+        throw err;
     }
 }
 
@@ -80,38 +82,59 @@ function createDir(done) {
     });
 }
 
-function createFile(path, random1, random2, size) {
-    const fd = enfs.openSync(path, "w");
-    size--;
-    while (size-- > 1) {
-        enfs.writeSync(fd, random1);
-    }
-    enfs.writeSync(fd, random2);
-    enfs.closeSync(fd);
-}
 
 function createFiles(done) {
-    const random1 = nodeCrypto.randomBytes(SIZE);
-    const random2 = nodeCrypto.randomBytes(SIZE);
-
-    createFile(FILES.SMALL.FILE, random1, random1, MBSIZE.SMALL);
-    createFile(FILES.SMALL.DIFF, random1, random2, MBSIZE.SMALL);
-    STATS.SMALL.SIZE = enfs.statSync(FILES.SMALL.FILE).size;
-
-    createFile(FILES.MEDIUM.FILE, random1, random1, MBSIZE.MEDIUM);
-    createFile(FILES.MEDIUM.DIFF, random1, random2, MBSIZE.MEDIUM);
-    STATS.MEDIUM.SIZE = enfs.statSync(FILES.MEDIUM.FILE).size;
-
-    createFile(FILES.BIG.FILE, random1, random1, MBSIZE.BIG);
-    createFile(FILES.BIG.DIFF, random1, random2, MBSIZE.BIG);
-    STATS.BIG.SIZE = enfs.statSync(FILES.BIG.FILE).size;
-
-    done();
+    createType("SMALL", ()=> {
+        createType("MEDIUM", ()=> {
+            createType("BIG", ()=> {
+                done();
+            });
+        });
+    });
 }
 
+function createType(type, done) {
+    const random1 = nodeCrypto.randomBytes(SIZE);
+    const random2 = nodeCrypto.randomBytes(SIZE);
+    createFile("FILE", type, random1, random1, ()=> {
+        createFile("DIFF", type, random1, random2, ()=> {
+            done();
+        });
+    });
+}
+
+function createFile(name, type, random1, random2, done) {
+    const stream1 = enfs.createWriteStream(FILES[type][name]);
+
+    stream1.on("finish", ()=> {
+        enfs.stat(FILES[type][name], (err, stat)=> {
+            onError(err);
+            STATS[type].SIZE = stat.size;
+            done();
+        });
+    });
+
+    stream1.on("error", (err)=> {
+        onError(err);
+        done(err);
+    });
+
+    let i = MBSIZE[type];
+    while (i-- > 1) {
+        stream1.write(random1);
+    }
+    stream1.write(random2);
+
+    stream1.end();
+}
+
+
 function benchmarks(done) {
+    console.log("Running small");
     runType("SMALL", ()=> {
+        console.log("Running medium");
         runType("MEDIUM", ()=> {
+            console.log("Running big");
             runType("BIG", ()=> {
                 done();
             });
@@ -129,11 +152,17 @@ function runType(type, done) {
 
 function runComparator(fn, type, statType, done) {
     let start = Date.now();
-    comparator[fn](FILES[type].FILE, FILES[type].FILE, (err)=> {
+    comparator[fn](FILES[type].FILE, FILES[type].FILE, (err, result)=> {
         onError(err);
+        if (result !== true) {
+            throw new Error(type + " - " + fn + " - returned invalid result.");
+        }
         STATS[type][statType].push(start, Date.now());
         start = Date.now();
-        comparator[fn](FILES[type].FILE, FILES[type].DIFF, (err2)=> {
+        comparator[fn](FILES[type].FILE, FILES[type].DIFF, (err2, result2)=> {
+            if (result2 !== false) {
+                throw new Error(type + " - " + fn + " - returned invalid result.");
+            }
             STATS[type][statType].push(start, Date.now());
             onError(err2);
             done();
@@ -141,26 +170,11 @@ function runComparator(fn, type, statType, done) {
     });
 }
 
-let START_TIME;
-let STOP_TIME;
-console.log("Starting files creation.");
-setImmediate(()=> {
-    createDir(()=> {
-        console.log("Files created.");
-        console.log("Starting to run benchmarks.");
-        START_TIME = Date.now();
-        benchmarks(()=> {
-            STOP_TIME = Date.now();
-            console.log("Benchmarks runned.");
-            showStats();
-        });
-    });
-});
 
-
-function showStats() {
+function showStats(done) {
     runShowStats(()=> {
-        console.log("Benchmark ended.")
+        console.log("Benchmark ended.");
+        done();
     });
 }
 
@@ -182,23 +196,37 @@ function showType(type, done) {
     });
 }
 
+function formatTime(millis) {
+    let date = new Date(millis);
+    return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+}
+
+
 function showComparator(type, statType, done) {
     let equal, diff;
     equal = STATS[type][statType][1] - STATS[type][statType][0];
     diff = STATS[type][statType][3] - STATS[type][statType][2];
-    console.log(type + " - " + statType + " - equal: "+ equal);
-    console.log(type + " - " + statType + " - diff: "+ diff);
+    console.log(type + " - " + statType + " - equal: " + formatTime(equal));
+    console.log(type + " - " + statType + " - diff: " + formatTime(diff));
     done();
-
-    //let start = Date.now();
-    /*comparator[fn](FILES[type].FILE, FILES[type].FILE, (err)=> {
-     onError(err);
-     STATS[type][statType].push(start, Date.now());
-     start = Date.now();
-     comparator[fn](FILES[type].FILE, FILES[type].DIFF, (err2)=> {
-     STATS[type][statType].push(start, Date.now());
-     onError(err2);
-     done();
-     });
-     });*/
 }
+
+
+setImmediate(()=> {
+    const startTime = Date.now();
+    console.log("Starting files creation.");
+    console.time("File Creation");
+    createDir(()=> {
+        console.timeEnd("File Creation");
+        //console.log("Files created.");
+        console.log("Starting to run benchmarks.");
+        console.time("Benchmarks");
+        benchmarks(()=> {
+            console.timeEnd("Benchmarks");
+            console.log("Total time: " + formatTime(Date.now() - startTime));
+            showStats(()=> {
+                rimraf.sync(tmpPath);
+            });
+        });
+    });
+});
