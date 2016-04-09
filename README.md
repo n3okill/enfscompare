@@ -1,57 +1,38 @@
-[![Build Status](https://travis-ci.org/n3okill/enfs.svg)](https://travis-ci.org/n3okill/enfs)
-[![Build status](https://ci.appveyor.com/api/projects/status/4vr9led0i9onj587?svg=true)](https://ci.appveyor.com/project/n3okill/enfs)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/38d87560204a4c1abbb1299394ed08c5)](https://www.codacy.com/app/n3okill/enfs)
+[![Build Status](https://travis-ci.org/n3okill/enfscompare.svg)](https://travis-ci.org/n3okill/enfscompare)
+[![Build status](https://ci.appveyor.com/api/projects/status/hbrhk12g7gmse48t?svg=true)](https://ci.appveyor.com/project/n3okill/enfscompare)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/459632289dfe4dcfab15a69f625ec291)](https://www.codacy.com/app/n3okill/enfscompare)
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=64PYTCDH5UNZ6)
 
-[![NPM](https://nodei.co/npm/enfs.png)](https://nodei.co/npm/enfs/)
+[![NPM](https://nodei.co/npm/enfscompare.png)](https://nodei.co/npm/enfscompare/)
 
-enfs
+enfscompare
 =========
-Module that add methods and patches to node fs module
+Module that add compare functionality to to node fs module
  
-**enfs** stands for [E]asy [N]ode [fs]
+This module is intended to work as a sub-module of [enfs](https://www.npmjs.com/package/enfs)
 
 Description
 -----------
-This module will add many methods to node fs module.
-This is just the main module that will join many 
-modules of the family of enfs, making it easier to use many of
-the methods present in each module.
+This module will add a method that allows the comparison of files and
+folders.
 
-Modules
--------
-  - [enfspatch](https://www.npmjs.com/package/enfspatch)
-  - [enfslist](https://www.npmjs.com/package/enfslist)
-  - [enfsfind](https://www.npmjs.com/package/enfsfind)
-  - [enfsmkdirp](https://www.npmjs.com/package/enfsmkdirp)
-  - [enfsensure](https://www.npmjs.com/package/enfsensure)
-  - [enfscopy](https://www.npmjs.com/package/enfscopy)
-  - [enfsmove](https://www.npmjs.com/package/enfsmove)
+- This module will add following methods to node fs module:
+  * files
+  * filesHash
+  * filesSync
+  * filesHashSync
+  * dir
+  * dirHash
+  * dirSync
+  * dirHashSync
 
-
-Methods Added
--------------
-  * emptyDir
-  * emptyDirSync
-
-  
 Usage
 -----
-`enfs` is a drop-in replacement for native `fs` module, you just need to include
-it instead of the native module.
-
-Use this
-```js
-    var enfs = require("enfs");
-```
-
-instead of
+`enfscompare`
 
 ```js
-    var fs = require("fs"); //You don't need to do this anymore
+    var enfscompare = require("enfscompare");
 ```
-
-and all the methods from native fs module are available
 
 Errors
 ------
@@ -62,78 +43,41 @@ All the methods follows the node culture.
 
 Additional Methods
 ------------------
-- [emptyDir](#emptydir)
-- [emptyDirSync](#emptydirsync)
+- [files](#files)
+- [filesSync](#filessync)
 
 
+### files
+  - **files(path, [options], callback)**
 
-### emptyDir
-  - **emptyDir(path, callback)**
+> Compare files in a byte-to-byte form
 
-> Remove all items from the directory this method use [rimraf](https://www.npmjs.com/package/rimraf), 
-then you can pass wildcards to the path like you do in rimraf
+[options]:
+  * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
 
 
 ```js
-    enfs.emptyDir("/path/to/empty/*", function(err){
-        if(!err) {
-            console.log("Directory is empty");
-        }
+    enfscompare.files("/home/name/file.txt", "/home/name/file.txt", function(err, result){
+        console.log("File is equal");
     });
 ```
 
 
-### emptyDirSync
-  - **emptyDirSync(path)**
+### filesSync
+  - **filesSync(path, [options])**
 
-> Remove all items from the directory this method use [rimraf.sync](https://www.npmjs.com/package/rimraf), 
-then you can pass wildcards to the path like you do in rimraf
+> Obtain the list of items under a directory and sub-directories synchronously
+Each item will be an object containing: {path: pathToItem, stat: itemStat}
 
+[options]:
+  * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
 
 ```js
-    enfs.emptyDirSync("/path/to/empty/*");
-    console.log("Directory is empty");
+    var result = enfscompare.filesSync("/home/name/file.txt","/home/name/file.txt");
+    if(result===true){
+        console.log("File is equal");
+    }
 ```
-
-
-
-Additional mehods from modules
---------------------------
-  - [enfspatch](https://www.npmjs.com/package/enfspatch)
-    * [exists](https://www.npmjs.com/package/enfspatch#exists) - `enfs.exists`
-    * [existsSync](https://www.npmjs.com/package/enfspatch#exists) - `enfs.existsSync`
-    * [existAccess](https://www.npmjs.com/package/enfspatch#existaccess) - `enfs.existAccess`
-    * [existAccessSync](https://www.npmjs.com/package/enfspatch#existaccess) - `enfs.existAccessSync`
-    * [existStat](https://www.npmjs.com/package/enfspatch#existstat) - `enfs.existStat`
-    * [existLStat](https://www.npmjs.com/package/enfspatch#existlstat) - `enfs.existLStat`
-    * [existFStat](https://www.npmjs.com/package/enfspatch#existfstat) - `enfs.existFStat`
-    * [existStatSync](https://www.npmjs.com/package/enfspatch#existstat) - `enfs.existStatSync`
-    * [existLStatSync](https://www.npmjs.com/package/enfspatch#existlstat) - `enfs.existLStatSync`
-    * [existFStatSync](https://www.npmjs.com/package/enfspatch#existfstat) - `enfs.existFStatSync`
-  - [enfslist](https://www.npmjs.com/package/enfslist)
-    * [list](https://www.npmjs.com/package/enfslist#list) - `enfs.list`
-    * [listSync](https://www.npmjs.com/package/enfslist#listsync) - `enfs.listSync`
-  - [enfsfind](https://www.npmjs.com/package/enfsfind)
-    * [find](https://www.npmjs.com/package/enfsfind#find) - `enfs.find`
-    * [findSync](https://www.npmjs.com/package/enfsfind#findsync) - `enfs.findSync`
-  - [enfsmkdirp](https://www.npmjs.com/package/enfsmkdirp)
-    * [mkdirp](https://www.npmjs.com/package/enfsmkdirp#mkdirp) - `enfs.mkdirp`
-    * [mkdirpSync](https://www.npmjs.com/package/enfsmkdirp#mkdirpsync) - `enfs.mkdirpSync`
-  - [enfsensure](https://www.npmjs.com/package/enfsensure)
-    * [ensureFile](https://www.npmjs.com/package/enfsensure#ensurefile) - `enfs.ensureFile`
-    * [ensureFileSync](https://www.npmjs.com/package/enfsensure#ensurefile) - `enfs.ensureFileSync`
-    * [ensureDir](https://www.npmjs.com/package/enfsensure#ensuredir) - `enfs.ensureDir`
-    * [ensureDirSync](https://www.npmjs.com/package/enfsensure#ensuredir) - `enfs.ensureDirSync`
-    * [ensureLink](https://www.npmjs.com/package/enfsensure#ensurelink) - `enfs.ensureLink`
-    * [ensureLinkSync](https://www.npmjs.com/package/enfsensure#ensurelink) - `enfs.ensureLinkSync`
-    * [ensureSymlink](https://www.npmjs.com/package/enfsensure#ensuresymlink) - `enfs.ensureSymlink`
-    * [ensureSymlinkSync](https://www.npmjs.com/package/enfsensure#ensuresymlink) - `enfs.ensureSymlinkSync`
-  - [enfscopy](https://www.npmjs.com/package/enfscopy)
-    * [copy](https://www.npmjs.com/package/enfscopy#copy) - `enfs.copy`
-    * [copySync](https://www.npmjs.com/package/enfscopy#copysync) - `enfs.copySync`
-  - [enfsmove](https://www.npmjs.com/package/enfsmove)
-    * [move](https://www.npmjs.com/package/enfsmove#move) - `enfs.move`
-    * [moveSync](https://www.npmjs.com/package/enfsmove#movesync) - `enfs.moveSync`
 
 
 License

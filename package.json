@@ -1,7 +1,7 @@
 {
   "name": "enfscompare",
   "version": "0.0.1",
-  "description": "Compare methods for node fs module",
+  "description": "Compare files and folders methods for node fs module",
   "license": "CC-BY-4.0",
   "author": {
     "name": "Joao Parreira",
