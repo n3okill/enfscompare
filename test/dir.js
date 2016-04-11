@@ -22,7 +22,7 @@ const rimraf = require("rimraf");
 const MbSize = 10;
 
 describe("enfscompare", function () {
-    describe.only("> dir", function () {
+    describe("> dir", function () {
         describe("> async", function () {
             describe("> hash", function () {
                 it("should compare two equal directories", function (done) {

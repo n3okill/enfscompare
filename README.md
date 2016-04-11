@@ -45,39 +45,108 @@ Additional Methods
 ------------------
 - [files](#files)
 - [filesSync](#filessync)
+- [filesHash](#filesHash)
+- [filesHashSync](#filesHashSync)
+- [dir](#dir)
+- [dirSync](#dirSync)
+- [dirHash](#dirHash)
+- [dirHashSync](#dirHashSync)
 
 
 ### files
-  - **files(path, [options], callback)**
+### filesSync
+  - **files(path1, path2, [options], callback)**
+  - **filesSync(path1, path2, [options])**
 
 > Compare files in a byte-to-byte form
 
 [options]:
   * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
-
-
+  * dereference (Boolean): if true will dereference symlinks listing the items to where it points (default: false)
+  * chunkSize (Number) - the size in bytes used to read files and verify equality default to 
+  (async: ReadStream._readableState.highWaterMark, sync: 8192)
+  
 ```js
     enfscompare.files("/home/name/file.txt", "/home/name/file.txt", function(err, result){
-        console.log("File is equal");
+        if(result===true){
+            console.log("File is equal");
+        }
     });
 ```
 
 
-### filesSync
-  - **filesSync(path, [options])**
+### dir
+### dirSync
+  - **dir(path1, path2, [options], callback)**
+  - **dirSync(path1, path2, [options])**
 
-> Obtain the list of items under a directory and sub-directories synchronously
-Each item will be an object containing: {path: pathToItem, stat: itemStat}
+> Compare files in a byte-to-byte form
 
 [options]:
   * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
+  * dereference (Boolean): if true will dereference symlinks listing the items to where it points (default: false)
+  * chunkSize (Number) - the size in bytes used to read files and verify equality default to 
+  (async: ReadStream._readableState.highWaterMark, sync: 8192)
 
 ```js
-    var result = enfscompare.filesSync("/home/name/file.txt","/home/name/file.txt");
+    enfscompare.dir("/home/name", "/home/another_folder_name", function(err, result){
+        if(result===true){
+            console.log("Directories are equal");
+        }
+    });
+```
+
+
+### filesHash
+### filesHashSync
+  - **filesHash(path1, path2, [options], callback)**
+  - **filesHashSync(path1, path2, [options])**
+
+> Compare files with an hash
+NOTE: This method can't correctly tell you that the files are equal, but can tell you if they are different
+
+[options]:
+  * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
+  * dereference (Boolean): if true will dereference symlinks listing the items to where it points (default: false)
+  * hash (String) - the type of hash to use in comparison, default to 'sha512'
+  * encoding (String) - the type of hash encoding used to compare the files, default to 'hex'
+  * chunkSize (String) - the size in bytes used to read files default 8192 (Only in sync method)
+
+```js
+    var result = enfscompare.filesHashSync("/home/name/file.txt","/home/name/file.txt");
     if(result===true){
         console.log("File is equal");
     }
 ```
+
+
+
+### dirHash
+### dirHashSync
+  - **dirHash(path1, path2, [options], callback)**
+  - **dirHashSync(path1, path2, [options])**
+
+> Compare files with an hash
+NOTE: This method can't correctly tell you that the files are equal, but can tell you if they are different
+
+[options]:
+  * fs (Object): an alternative fs module to use (default will be [enfspatch](https://www.npmjs.com/package/enfspatch))
+  * dereference (Boolean): if true will dereference symlinks listing the items to where it points (default: false)
+  * hash (String) - the type of hash to use in comparison, default to 'sha512'
+  * encoding (String) - the type of hash encoding used to compare the files, default to 'hex'
+  * chunkSize (String) - the size in bytes used to read files default 8192 (Only in sync method)
+
+```js
+    var result = enfscompare.filesHashSync("/home/name","/home/another_folder_name");
+    if(result===true){
+        console.log("Folders are equal");
+    }
+```
+
+
+Benchmarks
+----------
+Run the files in benchmarks folder to check which algorithm is fastest in your machine with different file sizes
 
 
 License

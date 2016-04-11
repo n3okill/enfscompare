@@ -1,7 +1,7 @@
 {
   "name": "enfscompare",
   "version": "0.0.1",
-  "description": "Compare files and folders methods for node fs module",
+  "description": "Add folder and file comparison to node fs module",
   "license": "CC-BY-4.0",
   "author": {
     "name": "Joao Parreira",
@@ -38,5 +38,16 @@
     "rimraf": "2.5.0"
   },
   "keywords": [
+    "byte",
+    "byte-to-byte",
+    "compare",
+    "directory",
+    "different",
+    "file",
+    "folder",
+    "equal",
+    "hash",
+    "hex",
+    "sha512"
   ]
 }
