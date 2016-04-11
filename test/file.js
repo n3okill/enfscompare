@@ -53,7 +53,7 @@ describe("enfscompare", function () {
                         done();
                     });
                 });
-                describe("big files", function () {
+                describe("> big files", function () {
                     it("should compare two equal files", function (done) {
                         comparator.filesHash(file, file, (err, result)=> {
                             (err === null).should.be.equal(true);
@@ -89,7 +89,7 @@ describe("enfscompare", function () {
                         done();
                     });
                 });
-                describe("big files", function () {
+                describe("> big files", function () {
                     it("should compare two equal files", function (done) {
                         comparator.files(file, file, (err, result)=> {
                             (err === null).should.be.equal(true);
@@ -121,7 +121,7 @@ describe("enfscompare", function () {
                     let result = comparator.filesHashSync(file1, file2);
                     result.should.be.equal(false);
                 });
-                describe("big files", function () {
+                describe("> big files", function () {
                     it("should compare two equal files", function () {
                         let result = comparator.filesHashSync(file, file);
                         result.should.be.equal(true);
@@ -145,7 +145,7 @@ describe("enfscompare", function () {
                     let result = comparator.filesSync(file1, file2);
                     result.should.be.equal(false);
                 });
-                describe("big files", function () {
+                describe("> big files", function () {
                     it("should compare two equal files", function () {
                         let result = comparator.filesSync(file, file);
                         result.should.be.equal(true);
@@ -168,13 +168,7 @@ function prepareFiles(tmpPath, file, fileDiff, done) {
 
     function ended() {
         if (end1 === true && end2 === true) {
-            enfs.stat(file, (err, stat1)=> {
-                if (err) {
-                    return done(err);
-                }
-                //console.log(stat1.size / 1024 / 1024 + "Mb");
-                done();
-            });
+            enfs.stat(file, done);
         }
     }
 

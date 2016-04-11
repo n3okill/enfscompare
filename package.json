@@ -1,7 +1,7 @@
 {
   "name": "enfscompare",
   "version": "0.0.1",
-  "description": "Add folder and file comparison to node fs module",
+  "description": "Add folder and file comparison method's to node fs module",
   "license": "CC-BY-4.0",
   "author": {
     "name": "Joao Parreira",
@@ -27,15 +27,15 @@
     "appveyor": "node ./node_modules/mocha/bin/mocha --reporter spec --require should test/*.js"
   },
   "dependencies": {
-    "enfspatch": "0.0",
-    "enfslist":"0.0"
+    "enfspatch": "0.1",
+    "enfslist": "0.1"
   },
   "devDependencies": {
     "eslint": "2.7.0",
-    "eslint-plugin-mocha": "2.0.0",
+    "eslint-plugin-mocha": "2.1.0",
     "mocha": "2.4.5",
     "should": "8.3.0",
-    "rimraf": "2.5.0"
+    "rimraf": "2.5.2"
   },
   "keywords": [
     "byte",
