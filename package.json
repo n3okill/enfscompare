@@ -1,6 +1,6 @@
 {
   "name": "enfscompare",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Add folder and file comparison method's to node fs module",
   "license": "CC-BY-4.0",
   "author": {
