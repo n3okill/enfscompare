@@ -19,7 +19,7 @@ const enfs = require("enfspatch");
 const comparator = require("../");
 const rimraf = require("rimraf");
 
-const MbSize = 1;
+const MbSize = 10;
 
 describe("enfscompare", function () {
     describe("> file", function () {
@@ -89,15 +89,72 @@ describe("enfscompare", function () {
                         done();
                     });
                 });
-                /*describe("big files", function () {
-                 const tmpPath = nodePath.join(nodeOs.tmpDir, "async_byte_file");
-                 const file = nodePath.join(tmpPath, "file");
-                 const fileEqual = nodePath.join(tmpPath, "fileEqual");
-                 const fileDiff = nodePath.join(tmpPath, "fileDiff");
-                 before(function (done) {
-                 prepareFiles(file, fileDiff, done);
-                 });
-                 });*/
+                describe("big files", function () {
+                    it("should compare two equal files", function (done) {
+                        comparator.files(file, file, (err, result)=> {
+                            (err === null).should.be.equal(true);
+                            result.should.be.equal(true);
+                            done();
+                        });
+                    });
+                    it("should fail to compare two different files", function (done) {
+                        comparator.files(file, fileDiff, (err, result)=> {
+                            (err === null).should.be.equal(true);
+                            result.should.be.equal(false);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+        describe("> sync", function () {
+            describe("> hash", function () {
+                it("should compare two equal files", function () {
+                    const file1 = nodePath.join(__dirname, "..", "index.js");
+                    const file2 = nodePath.join(__dirname, "..", "index.js");
+                    let result = comparator.filesHashSync(file1, file2);
+                    result.should.be.equal(true);
+                });
+                it("should fail to compare two different files", function () {
+                    const file1 = nodePath.join(__dirname, "..", "index.js");
+                    const file2 = nodePath.join(__dirname, "..", "package.json");
+                    let result = comparator.filesHashSync(file1, file2);
+                    result.should.be.equal(false);
+                });
+                describe("big files", function () {
+                    it("should compare two equal files", function () {
+                        let result = comparator.filesHashSync(file, file);
+                        result.should.be.equal(true);
+                    });
+                    it("should fail to compare two different files", function () {
+                        let result = comparator.filesHashSync(file, fileDiff);
+                        result.should.be.equal(false);
+                    });
+                });
+            });
+            describe("> byte to byte", function () {
+                it("should compare two equal files", function () {
+                    const file1 = nodePath.join(__dirname, "..", "index.js");
+                    const file2 = nodePath.join(__dirname, "..", "index.js");
+                    let result = comparator.filesSync(file1, file2);
+                    result.should.be.equal(true);
+                });
+                it("should fail to compare two different files", function () {
+                    const file1 = nodePath.join(__dirname, "..", "index.js");
+                    const file2 = nodePath.join(__dirname, "..", "package.json");
+                    let result = comparator.filesSync(file1, file2);
+                    result.should.be.equal(false);
+                });
+                describe("big files", function () {
+                    it("should compare two equal files", function () {
+                        let result = comparator.filesSync(file, file);
+                        result.should.be.equal(true);
+                    });
+                    it("should fail to compare two different files", function () {
+                        let result = comparator.filesSync(file, fileDiff);
+                        result.should.be.equal(false);
+                    });
+                });
             });
         });
     });
