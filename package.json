@@ -27,7 +27,8 @@
     "appveyor": "node ./node_modules/mocha/bin/mocha --reporter spec --require should test/*.js"
   },
   "dependencies": {
-    "enfspatch": "0.0"
+    "enfspatch": "0.0",
+    "enfslist":"0.0"
   },
   "devDependencies": {
     "eslint": "2.7.0",
