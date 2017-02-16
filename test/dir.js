@@ -10,16 +10,14 @@
  * @description tests for file comparison
  */
 
+/* global describe, it*/
+
 "use strict";
 
-const nodeCrypto = require("crypto");
-const nodeOs = require("os");
 const nodePath = require("path");
-const enfs = require("enfspatch");
 const comparator = require("../");
 const rimraf = require("rimraf");
 
-const MbSize = 10;
 
 describe("enfscompare", function () {
     describe("> dir", function () {
@@ -28,7 +26,7 @@ describe("enfscompare", function () {
                 it("should compare two equal directories", function (done) {
                     const path1 = nodePath.join(__dirname, "..", "lib");
                     const path2 = nodePath.join(__dirname, "..", "lib");
-                    comparator.dirHash(path1, path2, (err, result)=> {
+                    comparator.dirHash(path1, path2, (err, result) => {
                         (err === null).should.be.equal(true);
                         result.should.be.equal(true);
                         done();
@@ -37,7 +35,7 @@ describe("enfscompare", function () {
                 it("should fail to compare two different directories", function (done) {
                     const path1 = nodePath.join(__dirname, "..", "lib");
                     const path2 = nodePath.join(__dirname, "..", "test");
-                    comparator.dirHash(path1, path2, (err, result)=> {
+                    comparator.dirHash(path1, path2, (err, result) => {
                         (err === null).should.be.equal(true);
                         result.should.be.equal(false);
                         done();
@@ -48,7 +46,7 @@ describe("enfscompare", function () {
                 it("should compare two equal directories", function (done) {
                     const path1 = nodePath.join(__dirname, "..", "lib");
                     const path2 = nodePath.join(__dirname, "..", "lib");
-                    comparator.dir(path1, path2, (err, result)=> {
+                    comparator.dir(path1, path2, (err, result) => {
                         (err === null).should.be.equal(true);
                         result.should.be.equal(true);
                         done();
@@ -57,7 +55,7 @@ describe("enfscompare", function () {
                 it("should fail to compare two different directories", function (done) {
                     const path1 = nodePath.join(__dirname, "..", "lib");
                     const path2 = nodePath.join(__dirname, "..", "test");
-                    comparator.dir(path1, path2, (err, result)=> {
+                    comparator.dir(path1, path2, (err, result) => {
                         (err === null).should.be.equal(true);
                         result.should.be.equal(false);
                         done();
