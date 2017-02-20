@@ -70,38 +70,6 @@ function onError(err) {
     }
 }
 
-function createDir(done) {
-    enfs.mkdir(tmpPath, (err) => {
-        if (err) {
-            if (err.code === "EEXIST") {
-                return createFiles(done);
-            }
-            onError(err);
-        }
-        createFiles(done);
-    });
-}
-
-
-function createFiles(done) {
-    createType("SMALL", () => {
-        createType("MEDIUM", () => {
-            createType("BIG", () => {
-                done();
-            });
-        });
-    });
-}
-
-function createType(type, done) {
-    const random1 = nodeCrypto.randomBytes(SIZE);
-    const random2 = nodeCrypto.randomBytes(SIZE);
-    createFile("FILE", type, random1, random1, () => {
-        createFile("DIFF", type, random1, random2, () => {
-            done();
-        });
-    });
-}
 
 function createFile(name, type, random1, random2, done) {
     const stream1 = enfs.createWriteStream(FILES[type][name]);
@@ -128,35 +96,40 @@ function createFile(name, type, random1, random2, done) {
     stream1.end();
 }
 
-
-function benchmarks(done) {
-    console.log("Running small");
-    runType("SMALL");
-    console.log("Running medium");
-    runType("MEDIUM");
-    console.log("Running big");
-    runType("BIG");
-    done();
-    /*runType("SMALL", ()=> {
-     console.log("Running medium");
-     runType("MEDIUM", ()=> {
-     console.log("Running big");
-     runType("BIG", ()=> {
-     done();
-     });
-     });
-     });*/
+function createType(type, done) {
+    const random1 = nodeCrypto.randomBytes(SIZE);
+    const random2 = nodeCrypto.randomBytes(SIZE);
+    createFile("FILE", type, random1, random1, () => {
+        createFile("DIFF", type, random1, random2, () => {
+            done();
+        });
+    });
 }
 
-function runType(type) {
-    runComparator("filesHashSync", type, "HASH");
-    runComparator("filesSync", type, "BYTE");
-    /*runComparator("filesHash", type, "HASH", ()=> {
-     runComparator("files", type, "BYTE", ()=> {
-     done();
-     });
-     });*/
+
+function createFiles(done) {
+    createType("SMALL", () => {
+        createType("MEDIUM", () => {
+            createType("BIG", () => {
+                done();
+            });
+        });
+    });
 }
+
+
+function createDir(done) {
+    enfs.mkdir(tmpPath, (err) => {
+        if (err) {
+            if (err.code === "EEXIST") {
+                return createFiles(done);
+            }
+            onError(err);
+        }
+        createFiles(done);
+    });
+}
+
 
 function runComparator(fn, type, statType) {
     let start = Date.now();
@@ -171,51 +144,23 @@ function runComparator(fn, type, statType) {
         throw new Error(type + " - " + fn + " - returned invalid result.");
     }
     STATS[type][statType].push(start, Date.now());
-
-    /*let start = Date.now();
-     comparator[fn](FILES[type].FILE, FILES[type].FILE, (err, result)=> {
-     onError(err);
-     if (result !== true) {
-     throw new Error(type + " - " + fn + " - returned invalid result.");
-     }
-     STATS[type][statType].push(start, Date.now());
-     start = Date.now();
-     comparator[fn](FILES[type].FILE, FILES[type].DIFF, (err2, result2)=> {
-     if (result2 !== false) {
-     throw new Error(type + " - " + fn + " - returned invalid result.");
-     }
-     STATS[type][statType].push(start, Date.now());
-     onError(err2);
-     done();
-     });
-     });*/
 }
 
-
-function showStats(done) {
-    runShowStats(() => {
-        console.log("Benchmark ended.");
-        done();
-    });
+function runType(type) {
+    runComparator("filesHashSync", type, "HASH");
+    runComparator("filesSync", type, "BYTE");
 }
 
-function runShowStats(done) {
-    showType("SMALL", () => {
-        showType("MEDIUM", () => {
-            showType("BIG", () => {
-                done();
-            });
-        });
-    });
+function benchmarks(done) {
+    console.log("Running small");
+    runType("SMALL");
+    console.log("Running medium");
+    runType("MEDIUM");
+    console.log("Running big");
+    runType("BIG");
+    done();
 }
 
-function showType(type, done) {
-    showComparator(type, "HASH", () => {
-        showComparator(type, "BYTE", () => {
-            done();
-        });
-    });
-}
 
 function formatTime(millis) {
     let date = new Date(millis);
@@ -232,6 +177,32 @@ function showComparator(type, statType, done) {
     done();
 }
 
+function showType(type, done) {
+    showComparator(type, "HASH", () => {
+        showComparator(type, "BYTE", () => {
+            done();
+        });
+    });
+}
+
+function runShowStats(done) {
+    showType("SMALL", () => {
+        showType("MEDIUM", () => {
+            showType("BIG", () => {
+                done();
+            });
+        });
+    });
+}
+
+
+function showStats(done) {
+    runShowStats(() => {
+        console.log("Benchmark ended.");
+        done();
+    });
+}
+
 
 setImmediate(() => {
     const startTime = Date.now();
@@ -239,7 +210,6 @@ setImmediate(() => {
     console.time("File Creation");
     createDir(() => {
         console.timeEnd("File Creation");
-        //console.log("Files created.");
         console.log("Starting to run benchmarks.");
         console.time("Benchmarks");
         benchmarks(() => {
