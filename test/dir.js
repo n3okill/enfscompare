@@ -16,7 +16,6 @@
 
 const nodePath = require("path");
 const comparator = require("../");
-const rimraf = require("rimraf");
 
 
 describe("enfscompare", function () {

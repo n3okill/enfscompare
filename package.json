@@ -27,15 +27,15 @@
     "appveyor": "node ./node_modules/mocha/bin/mocha --reporter spec --require should test/*.js"
   },
   "dependencies": {
-    "enfspatch": "0.1",
-    "enfslist": "0.1"
+    "enfspatch": "^0.1",
+    "enfslist": "^0.1"
   },
   "devDependencies": {
-    "eslint": "2.7.0",
-    "eslint-plugin-mocha": "2.1.0",
-    "mocha": "2.4.5",
-    "should": "8.3.0",
-    "rimraf": "2.5.2"
+    "eslint": "^3.15.0",
+    "eslint-plugin-mocha": "^4.8.0",
+    "mocha": "^3.2.0",
+    "should": "^11.2.0",
+    "rimraf": "^2.6.0"
   },
   "keywords": [
     "byte",
