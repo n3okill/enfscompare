@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-  - "6.9.5"
-  - "4.7.3"
+  - "7"
+  - "6"
+  - "5"
+  - "4"
   - "node"
 os:
   - linux
